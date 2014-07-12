@@ -4,8 +4,9 @@ var cheerio = require('cheerio');
 var _ = require('lodash');
 var fs = require('fs');
 var path = require('path');
+var tableToJSON = require('./lib/tableToJSON');
 
-var outPath = path.join(__dirname, './data/');
+var outPath = path.join(__dirname, '../data/');
 var jsonOut = path.join(outPath, 'businesses.json');
 var geojsonOut = path.join(outPath, 'businesses-geojson.json');
 
@@ -60,21 +61,6 @@ function resultsToJSON(body) {
   return data;
 }
 
-function tableToJSON(el) {
-  var $ = cheerio;
-  var fields = $(el).children('tr').toArray();
-  var fieldValues = _.map(fields, function(el){
-    var parts = $(el).children('td').toArray();
-    var partValues = _.map(parts, function(el){
-      return $(el).text();
-    });
-    if (partValues[1]) {
-      return [camelize(partValues[0]), partValues[1]];
-    }
-  });
-  return _.zipObject(fieldValues);
-}
-
 function isHeader(doc) {
   return doc.creditType !== 'Credit Amount';
 }
@@ -112,12 +98,4 @@ function cleanupDocument(docs){
   });
 
   return out;
-}
-
-function camelize(str) {
-  return str.replace(/(?:^\w|[A-Z]|\b\w)/g, function(letter, index) {
-    return index === 0 ? letter.toLowerCase() : letter.toUpperCase();
-  })
-  .replace(/\s+/g, '')
-  .replace(/\//g, '');
 }
